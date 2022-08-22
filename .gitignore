@@ -4,6 +4,10 @@ coverage
 coverage.json
 typechain
 typechain-types
+node_modules
+artifacts
+cache
+deployments
 
 #Hardhat files
 cache
