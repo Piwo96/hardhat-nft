@@ -57,10 +57,29 @@ import { developmentChains } from "../../helper-hardhat-config";
                   assert.equal(balance.toString(), "0");
               });
 
+              it("Emits Transfer event", async function () {
+                  await expect(basicNft.mintNft()).to.emit(
+                      basicNft,
+                      "Transfer"
+                  );
+              });
+
               it("Deployer has a balance of 1 after mint", async function () {
-                  await basicNft.mintNft();
-                  const balance = await basicNft.balanceOf(deployer.address);
-                  assert.equal(balance.toString(), "1");
+                  await new Promise<void>(async (resolve, reject) => {
+                      basicNft.once("Transfer", async function () {
+                          try {
+                              const balance = await basicNft.balanceOf(
+                                  deployer.address
+                              );
+                              assert.equal(balance.toString(), "1");
+                              resolve();
+                          } catch (error) {
+                              console.log(error);
+                              reject(error);
+                          }
+                      });
+                      await basicNft.mintNft();
+                  });
               });
           });
       });
