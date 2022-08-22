@@ -5,6 +5,7 @@ import "dotenv/config";
 import "hardhat-gas-reporter";
 
 const PRIVATE_KEY = process.env.PRIVATE_KEY! || "0x0";
+const PRIVATE_KEY2 = process.env.PRIVATE_KEY2! || "0x0";
 const RINKEBY_RPC_URL = process.env.RINKEBY_RPC_URL! || "https://eth";
 const COINMARKETCAP_API_KEY = process.env.COINMARKETCAP_API_KEY! || "";
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY! || "";
