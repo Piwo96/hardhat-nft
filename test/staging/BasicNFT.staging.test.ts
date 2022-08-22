@@ -16,8 +16,20 @@ developmentChains.includes(network.name)
           });
 
           it("Allows people to mint a NFT", async function () {
-              await basicNft.mintNft();
-              const balance = await basicNft.balanceOf(deployer.address);
-              assert.equal(balance.toString(), "1");
+              await new Promise<void>(async (resolve, reject) => {
+                  basicNft.once("Transfer", async function () {
+                      try {
+                          const balance = await basicNft.balanceOf(
+                              deployer.address
+                          );
+                          assert.equal(balance.toString(), "1");
+                          resolve();
+                      } catch (error) {
+                          console.log(error);
+                          reject(error);
+                      }
+                  });
+                  await basicNft.mintNft();
+              });
           });
       });
