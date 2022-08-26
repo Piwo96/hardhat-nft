@@ -3,9 +3,17 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { ethers } from "hardhat";
 import { developmentChains, networkConfig } from "../helper-hardhat-config";
 import { verify } from "../utils/verify";
+import { storeImages, storeTokenUriMetadata } from "../utils/uploadToPinata";
+import { metadataTemplate } from "../utils/metadata";
+import { token } from "../typechain-types/@openzeppelin/contracts";
 
-const VRF_FOUND_AMOUNT = ethers.utils.parseEther("0.25");
-const mintFee = ethers.utils.parseEther("0.01");
+const VRF_FOUND_AMOUNT = ethers.utils.parseUnits("10");
+const imagesLocation = "./images/random-nft";
+let tokenUris = [
+    "ipfs://QmYMB4EAggdV84QR8L3ZWBohysjSP1UDAAtUv1JhffQu2u",
+    "ipfs://QmY3VN2pD16rWNewSQXjhZPKBxSQR4CNeRNnSBWVUoZ9kv",
+    "ipfs://QmTwcXGsLWwnvc3yLaCdXmx76Aw3rrKUszQbZpzkrSDXAe",
+];
 
 const deployRandomIpfsNft: DeployFunction = async (
     hre: HardhatRuntimeEnvironment
@@ -15,7 +23,6 @@ const deployRandomIpfsNft: DeployFunction = async (
     const { deployer } = await getNamedAccounts();
     const chainId = network.config.chainId!;
 
-    let tokenUris;
     if (process.env.UPLOAD_TO_PINATA == "true") {
         tokenUris = await handleTokenUris();
     }
@@ -41,20 +48,22 @@ const deployRandomIpfsNft: DeployFunction = async (
 
     const gasHash = networkConfig[chainId].gasHash!;
     const callbackGasLimit = networkConfig[chainId].callbackGasLimit!;
+    const mintFee = networkConfig[chainId].mintFee!;
+    const waitConfirmations = networkConfig[chainId].blockConfirmations;
 
     const args: any = [
         vrfCoordinatorV2Address,
         subscriptionId,
         gasHash,
         callbackGasLimit,
-        // dogTokenUris,
+        tokenUris,
         mintFee,
     ];
     const randomIpfsNft = await deploy("RandomIpfsNFT", {
         contract: "RandomIpfsNFT",
         from: deployer,
         log: true,
-        waitConfirmations: 0,
+        waitConfirmations: waitConfirmations,
         args: args,
     });
 
@@ -71,6 +80,27 @@ const deployRandomIpfsNft: DeployFunction = async (
 
 async function handleTokenUris() {
     let tokenUris: any = [];
-
+    const { responses: imageUploadResponses, files } = await storeImages(
+        imagesLocation
+    );
+    for (var imageUploadResponseIndex in imageUploadResponses) {
+        let tokenUriMetadata = { ...metadataTemplate };
+        tokenUriMetadata.name = files[imageUploadResponseIndex].replace(
+            ".png",
+            ""
+        );
+        tokenUriMetadata.description = `An adorabele ${tokenUriMetadata.name} pup!`;
+        tokenUriMetadata.image = `ipfs://${imageUploadResponses[imageUploadResponseIndex].IpfsHash}`;
+        console.log(`Uploading ${tokenUriMetadata.name} ...`);
+        const metadataUploadResponse = await storeTokenUriMetadata(
+            tokenUriMetadata
+        );
+        tokenUris.push(`ipfs://${metadataUploadResponse?.IpfsHash}`);
+    }
+    console.log("Token URIs uploaded! They are:");
+    console.log(tokenUris);
     return tokenUris;
 }
+
+export default deployRandomIpfsNft;
+deployRandomIpfsNft.tags = ["all", "randomIpfsNft"];
