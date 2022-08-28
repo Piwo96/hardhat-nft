@@ -5,7 +5,6 @@ import { developmentChains, networkConfig } from "../helper-hardhat-config";
 import { verify } from "../utils/verify";
 import { storeImages, storeTokenUriMetadata } from "../utils/uploadToPinata";
 import { metadataTemplate } from "../utils/metadata";
-import { token } from "../typechain-types/@openzeppelin/contracts";
 
 const VRF_FOUND_AMOUNT = ethers.utils.parseUnits("10");
 const imagesLocation = "./images/random-nft";
@@ -27,12 +26,10 @@ const deployRandomIpfsNft: DeployFunction = async (
         tokenUris = await handleTokenUris();
     }
 
-    let vrfCoordinatorV2Address, subscriptionId;
+    let vrfCoordinatorV2Address, vrfCoordinatorV2Mock, subscriptionId;
 
     if (developmentChains.includes(network.name)) {
-        const vrfCoordinatorV2Mock = await ethers.getContract(
-            "VRFCoordinatorV2Mock"
-        );
+        vrfCoordinatorV2Mock = await ethers.getContract("VRFCoordinatorV2Mock");
         vrfCoordinatorV2Address = vrfCoordinatorV2Mock.address;
         const tx = await vrfCoordinatorV2Mock.createSubscription();
         const txReceipt = await tx.wait(1);
@@ -74,6 +71,16 @@ const deployRandomIpfsNft: DeployFunction = async (
         process.env.ETHERSCAN_API_KEY
     ) {
         await verify(randomIpfsNft.address, args);
+    }
+
+    if (developmentChains.includes(network.name)) {
+        const vrfCoordinatorV2Mock = await ethers.getContract(
+            "VRFCoordinatorV2Mock"
+        );
+        await vrfCoordinatorV2Mock.addConsumer(
+            subscriptionId,
+            randomIpfsNft.address
+        );
     }
     log("-------------------------------------------------");
 };
