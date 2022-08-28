@@ -37,7 +37,7 @@ contract RandomIpfsNFT is VRFConsumerBaseV2, ERC721URIStorage, Ownable {
     uint256 internal immutable i_mintFee;
 
     // Events
-    event NftRequested(uint256 indexed requestId, address requester);
+    event NftRequested(uint256 indexed requestId, address requestor);
     event NftMinted(Breed dogBreed, address minter);
 
     constructor(
