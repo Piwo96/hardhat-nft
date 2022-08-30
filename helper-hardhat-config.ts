@@ -11,6 +11,7 @@ interface NetworkConfigItem {
     callbackGasLimit?: string;
     subscriptionId?: string;
     mintFee?: string;
+    ethUsdPriceFeedAddress?: string;
 }
 
 export const networkConfig: NetworkConfigInfo = {
@@ -22,6 +23,7 @@ export const networkConfig: NetworkConfigInfo = {
         callbackGasLimit: "500000",
         subscriptionId: "",
         mintFee: "10000000000000000",
+        ethUsdPriceFeedAddress: "0x8A753747A1Fa494EC906cE90E9f37563A8AF630e",
     },
     31337: {
         blockConfirmations: 1,
