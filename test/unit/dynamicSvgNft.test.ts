@@ -3,6 +3,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { DynamicSvgNft, MockV3Aggregator } from "../../typechain-types";
 import { developmentChains, networkConfig } from "../../helper-hardhat-config";
 import { ethers, network, deployments } from "hardhat";
+import fs from "fs";
 
 !developmentChains.includes(network.name)
     ? describe.skip
@@ -43,6 +44,30 @@ import { ethers, network, deployments } from "hardhat";
                   const tokenCounter = await dynamicSvgNft.getTokenCounter();
                   assert.equal(tokenCounter.toString(), "0");
               });
+
+              it("Sets low image uri", async function () {
+                  const baseUri = "data:application/json;base64,";
+                  const happySvgPath = "./images/dynamic-nft/happy.svg";
+                  const happySvg = fs.readFileSync(happySvgPath, {
+                      encoding: "utf-8",
+                  });
+                  const happySvgBase64Encoded =
+                      Buffer.from(happySvg).toString("base64");
+                  const lowImageUri = baseUri.concat(happySvgBase64Encoded);
+                  const lowImageUriFromContract =
+                      await dynamicSvgNft.getLowImageURI();
+                  assert.equal(lowImageUri, lowImageUriFromContract);
+              });
+
+              it("Sets high image uri", async function () {
+                  const baseUri = "data:application/json;base64,";
+                  const frownSvgPath = "./images/dynamic-nft/frown.svg";
+                  const frownSvg = fs.readFileSync(frownSvgPath, {
+                      encoding: "utf-8",
+                  });
+                  const frownSvgBase64Encoded =
+                      Buffer.from(frownSvg).toString("base64");
+              });
           });
 
           describe("mintNft", function () {
@@ -70,6 +95,22 @@ import { ethers, network, deployments } from "hardhat";
                   await expect(dynamicSvgNft.tokenURI(0)).to.be.revertedWith(
                       "URI Query for nonexistent token"
                   );
+              });
+
+              it("", async function () {
+                  const baseUri = "data:application/json;base64,";
+                  const frownSvgPath = "./images/dynamic-nft/frown.svg";
+                  const happySvgPath = "./images/dynamic-nft/happy.svg";
+                  const frownSvg = fs.readFileSync(frownSvgPath, {
+                      encoding: "utf-8",
+                  });
+                  const happySvg = fs.readFileSync(happySvgPath, {
+                      encoding: "utf-8",
+                  });
+                  const frownSvgBase64Encoded =
+                      Buffer.from(frownSvg).toString("base64");
+                  const happySvgBase64Encoded =
+                      Buffer.from(happySvg).toString("base64");
               });
           });
       });
