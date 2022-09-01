@@ -54,4 +54,4 @@ const deployDynamicSvgNft: DeployFunction = async (
 };
 
 export default deployDynamicSvgNft;
-deployDynamicSvgNft.tags = ["all", "dynamicSvgNft"];
+deployDynamicSvgNft.tags = ["all", "dynamicSvgNft", "main"];
