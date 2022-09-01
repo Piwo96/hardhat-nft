@@ -62,8 +62,9 @@ const mint: DeployFunction = async () => {
     const dynamicMintTx = await dynamicSvgNft.mintNft(highValue);
     await dynamicMintTx.wait(1);
     console.log(
-        `Dynamic SVG NFT index 0 tokenURI: ${await dynamicSvgNft.tokenURI(1)}`
+        `Dynamic SVG NFT index 0 tokenURI: ${await dynamicSvgNft.tokenURI(0)}`
     );
 };
 
 export default mint;
+mint.tags = ["all", "mint"];
